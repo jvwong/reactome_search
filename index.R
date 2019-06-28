@@ -35,6 +35,8 @@ pcapps_query <- pcapps_query %>% na.omit()
 
 ### ============ Merge data =========
 reactome.w.pcapps.queries <- merge(reactome_query, pcapps_query, by.x = c("Term"), by.y = c("TERM") )
+numeric_reactome_query_hits <- as.numeric(levels(reactome.w.pcapps.queries$Hits))[reactome.w.pcapps.queries$Hits]
+reactome.w.pcapps.queries$Hits <- factor(reactome.w.pcapps.queries$Hits, levels = as.character( sort( unique( numeric_reactome_query_hits ) ) ) ) 
 num_reactome_queries <- dim(reactome.w.pcapps.queries)[1]
 
 ########################################
@@ -52,7 +54,7 @@ reactome.w.pcapps.queries.either <- reactome.w.pcapps.queries %>% filter(PATHWAY
 num_with_either <- dim(reactome.w.pcapps.queries.either)[1]
 
 fraction_of_queries <- c(num_with_pathways, num_with_interactions, num_with_both)/num_reactome_queries
-fractionages_df <- data.frame( fraction = fraction_of_queries, type = c("Pathways","Interactions", "Pathways & Interactions"))
+fractionages_df <- data.frame( fraction = fraction_of_queries, type = c("Pathway","Interaction", "Pathway AND Interaction"))
 
 fraction_df_plot <- ggplot(fractionages_df, aes(x=factor(type), y=fraction)) + geom_bar(stat="identity", width = 0.7)
 fraction_df_plot + labs(x = "PC Result Type", y = "Fraction w/ PC Result") + theme(text = element_text(size=16),
@@ -60,7 +62,11 @@ fraction_df_plot + labs(x = "PC Result Type", y = "Fraction w/ PC Result") + the
                          axis.text.y = element_text(face = "bold", size = 12))
 
 
+### ============ Popular queries ==============
 
+# Distribution of query 'Hits'
+hit_distribution_df <- ggplot(reactome.w.pcapps.queries, aes(x=Hits)) + geom_bar()
+hit_distribution_df + labs(x = "X", y = "Hits") 
 
 
 
